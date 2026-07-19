@@ -1,0 +1,211 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────────────────────────
+// Organizational Hierarchy (new)
+// Faculty → Department → Batch → BatchSemester → Class → StudentClass → Student
+// ──────────────────────────────────────────────
+
+model Faculty {
+  id   String @id @default(cuid())
+  name String @unique
+  code String @unique // e.g. "ENG", "GEN"
+
+  departments Department[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Department {
+  id        String  @id @default(cuid())
+  name      String
+  code      String  @unique // e.g. "CS", "GEN"
+  facultyId String
+  faculty   Faculty @relation(fields: [facultyId], references: [id])
+
+  batches Batch[]
+  classes Class[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Class {
+  id              String        @id @default(cuid())
+  name            String        // e.g. "A", "B", "Default"
+  departmentId    String
+  department      Department    @relation(fields: [departmentId], references: [id])
+  batchSemesterId String
+  batchSemester   BatchSemester @relation(fields: [batchSemesterId], references: [id])
+
+  studentClasses StudentClass[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([batchSemesterId, name, departmentId])
+}
+
+model StudentClass {
+  id        String  @id @default(cuid())
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id])
+  classId   String
+  class     Class   @relation(fields: [classId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, classId])
+}
+
+// ──────────────────────────────────────────────
+// Existing models (unchanged except Batch.departmentId + reverse relations)
+// ──────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  role      String   // "ADMIN" or "STUDENT"
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student   Student?
+  adminPreferences AdminPreferences?
+}
+
+model Student {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  studentId String   @unique // The university ID (e.g., 2024001)
+  program   String   // "Bachelor" or "Diploma"
+  batch     String?  // Legacy string, keep for now
+  
+  batchId   String?
+  batchRel  Batch?   @relation(fields: [batchId], references: [id])
+  
+  enrollments    Enrollment[]
+  studentClasses StudentClass[]
+}
+
+model Semester {
+  id        String   @id @default(cuid())
+  name      String   // e.g., "Fall 2024", "Semester 1"
+  startDate DateTime
+  endDate   DateTime
+  active    Boolean  @default(false)
+
+  enrollments    Enrollment[]
+  batchSemesters BatchSemester[]
+}
+
+model Course {
+  id        String   @id @default(cuid())
+  code      String   @unique // e.g., "CS101"
+  name      String
+  credits   Int      @default(3)
+  
+  enrollments Enrollment[]
+  assignments CourseAssignment[]
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  semesterId String
+  semester  Semester @relation(fields: [semesterId], references: [id])
+
+  // Grades
+  attendance Float?   @default(0)
+  assessment Float?   @default(0)
+  midExam    Float?   @default(0)
+  finalExam  Float?   @default(0)
+  total      Float?   @default(0)
+  
+  grade      String?  // A, B+, etc.
+  gpaPoint   Float?   // 4.0, 3.5, etc.
+  
+  status     String   @default("ENROLLED") // ENROLLED, PASSED, FAILED, WITHDRAWN
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, courseId, semesterId])
+}
+
+model Teacher {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  
+  assignments CourseAssignment[]
+}
+
+model Batch {
+  id        String   @id @default(cuid())
+  name      String   @unique // "SH-2023", "SH-2024"
+  startYear Int
+
+  // Optional link to Department (new — nullable for backward compat)
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  
+  students       Student[]
+  batchSemesters BatchSemester[]
+}
+
+model BatchSemester {
+  id               String   @id @default(cuid())
+  batchId          String
+  batch            Batch    @relation(fields: [batchId], references: [id])
+  semesterId       String
+  semester         Semester @relation(fields: [semesterId], references: [id])
+  
+  academicSemester Int      // 1 to 9
+  status           String   @default("UPCOMING") // UPCOMING, ACTIVE, COMPLETED
+  
+  courseAssignments CourseAssignment[]
+  classes          Class[]
+
+  @@unique([batchId, semesterId])
+}
+
+model CourseAssignment {
+  id              String        @id @default(cuid())
+  batchSemesterId String
+  batchSemester   BatchSemester @relation(fields: [batchSemesterId], references: [id])
+  
+  courseId        String
+  course          Course        @relation(fields: [courseId], references: [id])
+  
+  teacherId       String?
+  teacher         Teacher?      @relation(fields: [teacherId], references: [id])
+
+  @@unique([batchSemesterId, courseId])
+}
+
+model AdminPreferences {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  user                     User    @relation(fields: [userId], references: [id])
+  showFailedStudentsReport Boolean @default(true)
+  showRecentEnrollments    Boolean @default(true)
+}
+
