@@ -3,6 +3,8 @@ import { getSession } from '@/lib/auth/session';
 import { Sidebar } from '../components/Sidebar';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
     const session = await getSession();
 

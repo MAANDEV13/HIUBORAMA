@@ -1,11 +1,12 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET is not defined in the environment variables');
+function getSecret() {
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not defined in the environment variables');
+    }
+    return new TextEncoder().encode(process.env.JWT_SECRET);
 }
-
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function requireAdmin() {
     const session = await getSession();
@@ -28,7 +29,7 @@ export async function createSession(payload: SessionPayload) {
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('7d')
-        .sign(secret);
+        .sign(getSecret());
 
     (await cookies()).set('session', token, {
         httpOnly: true,
@@ -46,7 +47,7 @@ export async function getSession(): Promise<SessionPayload | null> {
     if (!token) return null;
 
     try {
-        const { payload } = await jwtVerify(token, secret);
+        const { payload } = await jwtVerify(token, getSecret());
         return payload as SessionPayload;
     } catch (error) {
         return null;
