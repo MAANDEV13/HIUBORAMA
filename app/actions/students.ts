@@ -107,6 +107,7 @@ export async function createStudent(data: {
             data: {
                 studentId: data.studentId,
                 userId: user.id,
+                program: 'Bachelor',
                 batch: data.batch,
                 batchId: batchObj?.id
             }
