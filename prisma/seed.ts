@@ -146,15 +146,32 @@ async function main() {
 
     console.log('✅ Courses created');
 
+    // Create Grading Scale
+    const defaultScales = [
+        { grade: 'A', minMark: 85, gpaPoint: 4.0 },
+        { grade: 'B+', minMark: 75, gpaPoint: 3.5 },
+        { grade: 'B', minMark: 70, gpaPoint: 3.0 },
+        { grade: 'C+', minMark: 65, gpaPoint: 2.5 },
+        { grade: 'C', minMark: 60, gpaPoint: 2.0 },
+        { grade: 'D+', minMark: 55, gpaPoint: 1.5 },
+        { grade: 'D', minMark: 50, gpaPoint: 1.0 },
+        { grade: 'F', minMark: 0, gpaPoint: 0.0 },
+    ];
+
+    await prisma.gradingScale.deleteMany(); // Clear existing
+    for (const scale of defaultScales) {
+        await prisma.gradingScale.create({ data: scale });
+    }
+    console.log('✅ Grading Scale created');
+
     // Helper function to calculate grade and GPA
     function calculateGrade(total: number): { grade: string; gpaPoint: number } {
-        if (total >= 85) return { grade: 'A', gpaPoint: 4.0 };
-        if (total >= 75) return { grade: 'B+', gpaPoint: 3.5 };
-        if (total >= 70) return { grade: 'B', gpaPoint: 3.0 };
-        if (total >= 65) return { grade: 'C+', gpaPoint: 2.5 };
-        if (total >= 60) return { grade: 'C', gpaPoint: 2.0 };
-        if (total >= 55) return { grade: 'D+', gpaPoint: 1.5 };
-        if (total >= 50) return { grade: 'D', gpaPoint: 1.0 };
+        const sortedScales = [...defaultScales].sort((a, b) => b.minMark - a.minMark);
+        for (const scale of sortedScales) {
+            if (total >= scale.minMark) {
+                return { grade: scale.grade, gpaPoint: scale.gpaPoint };
+            }
+        }
         return { grade: 'F', gpaPoint: 0.0 };
     }
 

@@ -9,7 +9,7 @@ async function migrate() {
     console.log('Connecting to Turso...');
     const client = createClient({ url, authToken });
 
-    const sqlPath = path.join(__dirname, 'prisma', 'migrations', '0_init', 'migration.sql');
+    const sqlPath = path.join(__dirname, 'prisma', 'migrations', 'add_grading_scale.sql');
     console.log('Reading migration file:', sqlPath);
     const sql = fs.readFileSync(sqlPath, 'utf8');
 

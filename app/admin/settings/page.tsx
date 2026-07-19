@@ -8,6 +8,7 @@ import {
     AdminPreferences,
 } from '@/app/actions/adminPreferences';
 import { exportDatabase, importDatabase } from '@/app/actions/databaseBackup';
+import Link from 'next/link';
 
 export default function AdminSettings() {
     // Password state
@@ -170,6 +171,17 @@ export default function AdminSettings() {
             <div>
                 <h1 className="text-3xl font-bold text-gray-900">Admin Settings</h1>
                 <p className="mt-2 text-gray-600">Manage your account and system settings</p>
+            </div>
+
+            {/* Grading System Link */}
+            <div className="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden p-6 flex justify-between items-center hover:bg-gray-50 transition-colors">
+                <div>
+                    <h2 className="text-xl font-semibold text-gray-900">Grading System Configuration</h2>
+                    <p className="text-sm text-gray-600 mt-1">Configure minimum marks, letter grades, and GPA points.</p>
+                </div>
+                <Link href="/admin/settings/grading" className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+                    Configure Grading &rarr;
+                </Link>
             </div>
 
             {/* Password Change Section */}

@@ -4,15 +4,28 @@ import { parse } from 'csv-parse/sync';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
-// Helper function to calculate grade and GPA
-function calculateGrade(total: number): { grade: string; gpaPoint: number } {
-    if (total >= 85) return { grade: 'A', gpaPoint: 4.0 };
-    if (total >= 75) return { grade: 'B+', gpaPoint: 3.5 };
-    if (total >= 70) return { grade: 'B', gpaPoint: 3.0 };
-    if (total >= 65) return { grade: 'C+', gpaPoint: 2.5 };
-    if (total >= 60) return { grade: 'C', gpaPoint: 2.0 };
-    if (total >= 55) return { grade: 'D+', gpaPoint: 1.5 };
-    if (total >= 50) return { grade: 'D', gpaPoint: 1.0 };
+// Helper function to calculate grade and GPA dynamically
+type GradingScaleType = { grade: string; minMark: number; gpaPoint: number };
+
+function calculateGrade(total: number, scales: GradingScaleType[]): { grade: string; gpaPoint: number } {
+    if (!scales || scales.length === 0) {
+        // Fallback if db is empty
+        if (total >= 85) return { grade: 'A', gpaPoint: 4.0 };
+        if (total >= 75) return { grade: 'B+', gpaPoint: 3.5 };
+        if (total >= 70) return { grade: 'B', gpaPoint: 3.0 };
+        if (total >= 65) return { grade: 'C+', gpaPoint: 2.5 };
+        if (total >= 60) return { grade: 'C', gpaPoint: 2.0 };
+        if (total >= 55) return { grade: 'D+', gpaPoint: 1.5 };
+        if (total >= 50) return { grade: 'D', gpaPoint: 1.0 };
+        return { grade: 'F', gpaPoint: 0.0 };
+    }
+
+    const sortedScales = [...scales].sort((a, b) => b.minMark - a.minMark);
+    for (const scale of sortedScales) {
+        if (total >= scale.minMark) {
+            return { grade: scale.grade, gpaPoint: scale.gpaPoint };
+        }
+    }
     return { grade: 'F', gpaPoint: 0.0 };
 }
 
@@ -42,6 +55,9 @@ export async function uploadGrades(formData: FormData) {
         // Expected columns: studentId, courseCode, attendance, assessment, midExam, finalExam
         let count = 0;
         let errors: string[] = [];
+        
+        // Fetch scales once for all records
+        const scales = await prisma.gradingScale.findMany();
 
         for (const record of records) {
             if (!record.studentId || !record.courseCode) continue;
@@ -65,8 +81,8 @@ export async function uploadGrades(formData: FormData) {
             const finalExam = parseFloat(record.finalExam || '0');
 
             const total = attendance + assessment + midExam + finalExam;
-            const { grade, gpaPoint } = calculateGrade(total);
-            const status = total >= 50 ? 'PASSED' : 'FAILED';
+            const { grade, gpaPoint } = calculateGrade(total, scales);
+            const status = grade === 'F' ? 'FAILED' : 'PASSED';
 
             await prisma.enrollment.upsert({
                 where: {
@@ -120,8 +136,9 @@ export async function updateGrade(enrollmentId: string, data: {
     try {
         const { attendance, assessment, midExam, finalExam } = data;
         const total = attendance + assessment + midExam + finalExam;
-        const { grade, gpaPoint } = calculateGrade(total);
-        const status = total >= 50 ? 'PASSED' : 'FAILED';
+        const scales = await prisma.gradingScale.findMany();
+        const { grade, gpaPoint } = calculateGrade(total, scales);
+        const status = grade === 'F' ? 'FAILED' : 'PASSED';
 
         await prisma.enrollment.update({
             where: { id: enrollmentId },

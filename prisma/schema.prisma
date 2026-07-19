@@ -209,3 +209,13 @@ model AdminPreferences {
   showRecentEnrollments    Boolean @default(true)
 }
 
+model GradingScale {
+  id        String   @id @default(cuid())
+  grade     String   @unique // e.g. "A", "B+"
+  minMark   Float    // Minimum mark required (e.g. 85 for A)
+  gpaPoint  Float    // e.g. 4.0
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
