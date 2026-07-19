@@ -48,9 +48,9 @@ export async function login(formData: FormData) {
         // Determine redirect path
         redirectPath = user.role === 'ADMIN' ? '/admin' : '/student';
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Login error:', error);
-        return { error: 'An error occurred during login' };
+        return { error: `An error occurred during login: ${error.message || String(error)}` };
     }
 
     // Redirect outside try-catch
