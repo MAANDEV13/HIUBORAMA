@@ -41,7 +41,10 @@ export default function UploadStudentsPage() {
                     <p className="mt-2 text-gray-600 dark:text-gray-300">
                         Upload a CSV file with columns: <code>studentId</code>, <code>name</code>, <code>program</code>, <code>batch</code>
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Default password will be set to Student ID</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        The <code>batch</code> value links the student to the academic hierarchy (e.g. SH-2023). Class assignments are done per-semester on the Assign Classes page.<br/>
+                        Default password will be set to Student ID
+                    </p>
                 </div>
 
                 <form action={handleSubmit} className="space-y-6">

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getFullHierarchy } from '@/app/actions/classes'
 import { getBatches, createBatch, deleteBatch } from '@/app/actions/batches'
 import Link from 'next/link'
+import { ExportCSVButton } from '@/app/components/ExportCSVButton'
 
 export default function BatchesPage() {
     const [hierarchy, setHierarchy] = useState<any[]>([])
@@ -68,6 +69,29 @@ export default function BatchesPage() {
                     <p className="mt-1 text-gray-600 dark:text-gray-400">Faculty → Department → Batch → Semester → Class</p>
                 </div>
                 <div className="flex gap-2">
+                    <ExportCSVButton 
+                        data={hierarchy.flatMap(f => 
+                            f.departments.flatMap((d: any) => 
+                                d.batches.map((b: any) => ({
+                                    faculty: f.name,
+                                    department: d.code,
+                                    batch: b.name,
+                                    startYear: b.startYear,
+                                    semesters: b.batchSemesters?.length || 0,
+                                    students: b._count?.students || 0
+                                }))
+                            )
+                        )}
+                        headers={[
+                            { key: 'faculty', label: 'Faculty' },
+                            { key: 'department', label: 'Department' },
+                            { key: 'batch', label: 'Batch Name' },
+                            { key: 'startYear', label: 'Start Year' },
+                            { key: 'semesters', label: 'Semesters Count' },
+                            { key: 'students', label: 'Students Count' }
+                        ]}
+                        filename="batches-hierarchy"
+                    />
                     <button onClick={expandAll} className="text-xs px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
                         Expand All
                     </button>

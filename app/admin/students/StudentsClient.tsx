@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { updateStudent, deleteStudent } from '@/app/actions/students'
 import { useRouter } from 'next/navigation'
+import { ExportCSVButton } from '@/app/components/ExportCSVButton'
 
 interface Student {
     id: string
@@ -16,6 +17,17 @@ interface Student {
     _count: {
         enrollments: number
     }
+    studentClasses?: {
+        class: {
+            name: string
+            department: {
+                code: string
+                faculty: {
+                    code: string
+                }
+            }
+        }
+    }[]
 }
 
 export default function StudentsClient({ students }: { students: Student[] }) {
@@ -30,7 +42,10 @@ export default function StudentsClient({ students }: { students: Student[] }) {
             student.user.name.toLowerCase().includes(query) ||
             student.studentId.toLowerCase().includes(query) ||
             student.program.toLowerCase().includes(query) ||
-            (student.batch && student.batch.toLowerCase().includes(query))
+            (student.batch && student.batch.toLowerCase().includes(query)) ||
+            (student.studentClasses?.[0]?.class.name.toLowerCase().includes(query)) ||
+            (student.studentClasses?.[0]?.class.department.code.toLowerCase().includes(query)) ||
+            (student.studentClasses?.[0]?.class.department.faculty.code.toLowerCase().includes(query))
         )
     })
 
@@ -66,8 +81,32 @@ export default function StudentsClient({ students }: { students: Student[] }) {
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-end">
-                <div className="relative w-full max-w-md">
+            <div className="flex justify-between items-center">
+                <ExportCSVButton 
+                    data={filteredStudents.map(s => ({
+                        studentId: s.studentId,
+                        name: s.user.name,
+                        program: s.program,
+                        batch: s.batch,
+                        facultyCode: s.studentClasses?.[0]?.class.department.faculty.code || 'Unassigned',
+                        departmentCode: s.studentClasses?.[0]?.class.department.code || 'Unassigned',
+                        className: s.studentClasses?.[0]?.class.name || 'Unassigned',
+                        enrollmentsCount: s._count.enrollments
+                    }))}
+                    headers={[
+                        { key: 'studentId', label: 'Student ID' },
+                        { key: 'name', label: 'Name' },
+                        { key: 'program', label: 'Program' },
+                        { key: 'batch', label: 'Legacy Batch' },
+                        { key: 'facultyCode', label: 'Faculty' },
+                        { key: 'departmentCode', label: 'Department' },
+                        { key: 'className', label: 'Class' },
+                        { key: 'enrollmentsCount', label: 'Enrollments' }
+                    ]}
+                    filename="students"
+                />
+                
+                <div className="relative w-full max-w-md ml-4">
                     <input
                         type="text"
                         placeholder="Search by name, ID, program, or batch..."
@@ -94,7 +133,8 @@ export default function StudentsClient({ students }: { students: Student[] }) {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Student ID</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Program</th>
-                                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Batch</th>
+                                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Faculty/Dept</th>
+                                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Class</th>
                                 <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Courses</th>
                                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                             </tr>
@@ -132,15 +172,21 @@ export default function StudentsClient({ students }: { students: Student[] }) {
                                         )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-gray-400">
-                                        {editingId === student.id ? (
-                                            <input
-                                                type="text"
-                                                value={editForm.batch}
-                                                onChange={e => setEditForm({ ...editForm, batch: e.target.value })}
-                                                className="border rounded px-2 py-1 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                                            />
+                                        {student.studentClasses?.[0] ? (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                                {student.studentClasses[0].class.department.faculty.code} / {student.studentClasses[0].class.department.code}
+                                            </span>
                                         ) : (
-                                            student.batch || '-'
+                                            <span className="text-gray-400 italic">Unassigned</span>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-gray-400">
+                                        {student.studentClasses?.[0] ? (
+                                            <span className="font-medium text-gray-900 dark:text-gray-200">
+                                                {student.studentClasses[0].class.name}
+                                            </span>
+                                        ) : (
+                                            <span className="text-gray-400 italic">-</span>
                                         )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">

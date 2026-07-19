@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
 import SemesterCard from './SemesterCard';
+import { ExportCSVButton } from '@/app/components/ExportCSVButton';
 
 export default async function GradesPage() {
     // Fetch all batches with their batch semesters, including department info
@@ -34,6 +35,23 @@ export default async function GradesPage() {
                     <p className="mt-2 text-gray-600 dark:text-gray-400">Manage student enrollments and grades — grouped by batch</p>
                 </div>
                 <div className="flex gap-4">
+                    <ExportCSVButton 
+                        data={batches.flatMap(b => b.batchSemesters.map(bs => ({
+                            batchName: b.name,
+                            department: b.department?.name || 'Unknown',
+                            academicSemester: bs.academicSemester,
+                            status: bs.status,
+                            timeSemester: bs.semester?.name || 'Unknown'
+                        })))}
+                        headers={[
+                            { key: 'batchName', label: 'Batch' },
+                            { key: 'department', label: 'Department' },
+                            { key: 'academicSemester', label: 'Academic Sem' },
+                            { key: 'status', label: 'Status' },
+                            { key: 'timeSemester', label: 'Time Semester' }
+                        ]}
+                        filename="grades-semesters"
+                    />
                     <Link
                         href="/admin/grades/upload"
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-sm transition-all"

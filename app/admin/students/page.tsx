@@ -9,6 +9,23 @@ export default async function StudentsPage() {
             _count: {
                 select: { enrollments: true },
             },
+            studentClasses: {
+                include: {
+                    class: {
+                        include: {
+                            department: {
+                                include: {
+                                    faculty: true
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                take: 1
+            }
         },
         orderBy: { studentId: 'asc' },
     });

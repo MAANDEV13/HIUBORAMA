@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getTeachers, createTeacher, deleteTeacher } from '@/app/actions/teachers'
+import { ExportCSVButton } from '@/app/components/ExportCSVButton'
 
 export default function TeachersPage() {
     const [teachers, setTeachers] = useState<any[]>([])
@@ -35,7 +36,18 @@ export default function TeachersPage() {
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6 dark:text-white">Teacher Management</h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold dark:text-white">Teacher Management</h1>
+                <ExportCSVButton 
+                    data={teachers}
+                    headers={[
+                        { key: 'name', label: 'Name' },
+                        { key: 'phone', label: 'Phone' },
+                        { key: 'email', label: 'Email' }
+                    ]}
+                    filename="teachers"
+                />
+            </div>
 
             <div className="bg-white dark:bg-gray-800 p-4 rounded shadow mb-8">
                 <h2 className="text-xl mb-4 dark:text-white">Add New Teacher</h2>

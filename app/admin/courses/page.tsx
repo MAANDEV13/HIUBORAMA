@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma';
 import Link from 'next/link';
+import { ExportCSVButton } from '@/app/components/ExportCSVButton';
 
 export default async function CoursesPage() {
     const courses = await prisma.course.findMany({
@@ -19,6 +20,21 @@ export default async function CoursesPage() {
                     <p className="mt-2 text-gray-600 dark:text-gray-400">Manage university courses</p>
                 </div>
                 <div className="flex gap-4">
+                    <ExportCSVButton 
+                        data={courses.map(c => ({
+                            code: c.code,
+                            name: c.name,
+                            credits: c.credits,
+                            enrollments: c._count.enrollments
+                        }))}
+                        headers={[
+                            { key: 'code', label: 'Code' },
+                            { key: 'name', label: 'Name' },
+                            { key: 'credits', label: 'Credits' },
+                            { key: 'enrollments', label: 'Enrollments' }
+                        ]}
+                        filename="courses"
+                    />
                     <Link
                         href="/admin/courses/upload"
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 shadow-sm transition-all"

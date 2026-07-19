@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { getDepartments, createDepartment, updateDepartment, deleteDepartment } from '@/app/actions/departments'
 import { getFaculties } from '@/app/actions/faculties'
+import { ExportCSVButton } from '@/app/components/ExportCSVButton'
 
 export default function DepartmentsPage() {
     const [departments, setDepartments] = useState<any[]>([])
@@ -66,9 +67,30 @@ export default function DepartmentsPage() {
 
     return (
         <div className="p-6 space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold dark:text-white">Department Management</h1>
-                <p className="mt-1 text-gray-600 dark:text-gray-400">Manage departments — each belongs to a Faculty</p>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold dark:text-white">Department Management</h1>
+                    <p className="mt-1 text-gray-600 dark:text-gray-400">Manage departments — each belongs to a Faculty</p>
+                </div>
+                <ExportCSVButton 
+                    data={departments.map(d => ({
+                        name: d.name,
+                        code: d.code,
+                        facultyName: faculties.find(f => f.id === d.facultyId)?.name || 'Unknown',
+                        facultyCode: faculties.find(f => f.id === d.facultyId)?.code || 'Unknown',
+                        batches: d._count?.batches || 0,
+                        classes: d._count?.classes || 0
+                    }))}
+                    headers={[
+                        { key: 'name', label: 'Department Name' },
+                        { key: 'code', label: 'Code' },
+                        { key: 'facultyName', label: 'Faculty' },
+                        { key: 'facultyCode', label: 'Faculty Code' },
+                        { key: 'batches', label: 'Batches Count' },
+                        { key: 'classes', label: 'Classes Count' }
+                    ]}
+                    filename="departments"
+                />
             </div>
 
             {/* Create Form */}

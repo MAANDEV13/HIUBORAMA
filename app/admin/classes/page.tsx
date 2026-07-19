@@ -7,6 +7,7 @@ import { getBatches } from '@/app/actions/batches'
 import { getBatchSemesters } from '@/app/actions/scheduling'
 import { getSemesters } from '@/app/actions/semesters'
 import Link from 'next/link'
+import { ExportCSVButton } from '@/app/components/ExportCSVButton'
 
 export default function ClassesPage() {
     const [classes, setClasses] = useState<any[]>([])
@@ -93,6 +94,27 @@ export default function ClassesPage() {
                     <h1 className="text-2xl font-bold dark:text-white">Class Management</h1>
                     <p className="mt-1 text-gray-600 dark:text-gray-400">Create classes scoped to a specific Batch-Semester + Department</p>
                 </div>
+                <ExportCSVButton 
+                    data={filteredClasses.map(c => ({
+                        className: c.name,
+                        department: c.department?.name || 'Unknown',
+                        faculty: c.department?.faculty?.name || 'Unknown',
+                        batchName: c.batchSemester?.batch?.name || 'Unknown',
+                        academicSemester: c.batchSemester?.academicSemester || 'Unknown',
+                        timeSemester: c.batchSemester?.semester?.name || 'Unknown',
+                        students: c._count?.studentClasses || 0
+                    }))}
+                    headers={[
+                        { key: 'className', label: 'Class Name' },
+                        { key: 'department', label: 'Department' },
+                        { key: 'faculty', label: 'Faculty' },
+                        { key: 'batchName', label: 'Batch' },
+                        { key: 'academicSemester', label: 'Academic Sem' },
+                        { key: 'timeSemester', label: 'Time Semester' },
+                        { key: 'students', label: 'Students Count' }
+                    ]}
+                    filename="classes"
+                />
             </div>
 
             {/* Create Form */}

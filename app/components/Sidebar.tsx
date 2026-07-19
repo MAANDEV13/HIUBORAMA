@@ -4,6 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '../actions/auth';
 import { useState } from 'react';
+import { 
+    LayoutDashboard, Users, BookOpen, GraduationCap, 
+    Building2, Building, School, CalendarDays, 
+    Calendar, Settings, Lock, FileText, FileBarChart2 
+} from 'lucide-react';
 
 interface SidebarProps {
     userName: string;
@@ -15,25 +20,24 @@ export function Sidebar({ userName, role }: SidebarProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const adminLinks = [
-        { href: '/admin', label: 'Dashboard', icon: '📊' },
-        { href: '/admin/students', label: 'Students', icon: '👥' },
-        { href: '/admin/courses', label: 'Courses', icon: '📚' },
-        { href: '/admin/grades', label: 'Grades', icon: '📝' },
-        { href: '/admin/teachers', label: 'Teachers', icon: '👨‍🏫' },
-        { href: '/admin/faculties', label: 'Faculties', icon: '🏛️' },
-        { href: '/admin/departments', label: 'Departments', icon: '🏢' },
-        { href: '/admin/classes', label: 'Classes', icon: '🎓' },
-        { href: '/admin/batches', label: 'Batches', icon: '📅' },
-        { href: '/admin/scheduling', label: 'Scheduling', icon: '🗓️' },
-        { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
-        { href: '/admin/reset-password', label: 'Reset Pwd', icon: '🔒' },
+        { href: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { href: '/admin/faculties', label: 'Faculties', icon: <Building2 size={20} /> },
+        { href: '/admin/departments', label: 'Departments', icon: <Building size={20} /> },
+        { href: '/admin/batches', label: 'Batches', icon: <CalendarDays size={20} /> },
+        { href: '/admin/classes', label: 'Classes', icon: <School size={20} /> },
+        { href: '/admin/students', label: 'Students', icon: <Users size={20} /> },
+        { href: '/admin/teachers', label: 'Teachers', icon: <GraduationCap size={20} /> },
+        { href: '/admin/courses', label: 'Courses', icon: <BookOpen size={20} /> },
+        { href: '/admin/grades', label: 'Grades', icon: <FileText size={20} /> },
+        { href: '/admin/scheduling', label: 'Scheduling', icon: <Calendar size={20} /> },
+        { href: '/admin/settings', label: 'Settings', icon: <Settings size={20} /> },
+        { href: '/admin/reset-password', label: 'Reset Pwd', icon: <Lock size={20} /> },
     ];
 
-
     const studentLinks = [
-        { href: '/student', label: 'Dashboard', icon: '📊' },
-        { href: '/student/transcript', label: 'Transcript', icon: '📄' },
-        { href: '/student/settings', label: 'Settings', icon: '⚙️' },
+        { href: '/student', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+        { href: '/student/transcript', label: 'Transcript', icon: <FileBarChart2 size={20} /> },
+        { href: '/student/settings', label: 'Settings', icon: <Settings size={20} /> },
     ];
 
     const links = role === 'ADMIN' ? adminLinks : studentLinks;
@@ -77,7 +81,7 @@ export function Sidebar({ userName, role }: SidebarProps) {
                                             : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                                             }`}
                                     >
-                                        <span className="mr-3 text-lg">{link.icon}</span>
+                                        <span className="mr-3">{link.icon}</span>
                                         {link.label}
                                     </Link>
                                 </li>

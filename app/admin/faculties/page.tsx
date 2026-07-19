@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getFaculties, createFaculty, updateFaculty, deleteFaculty } from '@/app/actions/faculties'
+import { ExportCSVButton } from '@/app/components/ExportCSVButton'
 
 export default function FacultiesPage() {
     const [faculties, setFaculties] = useState<any[]>([])
@@ -48,9 +49,24 @@ export default function FacultiesPage() {
 
     return (
         <div className="p-6 space-y-6">
-            <div>
-                <h1 className="text-2xl font-bold dark:text-white">Faculty Management</h1>
-                <p className="mt-1 text-gray-600 dark:text-gray-400">Manage faculties — the top level of the academic hierarchy</p>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-bold dark:text-white">Faculty Management</h1>
+                    <p className="mt-1 text-gray-600 dark:text-gray-400">Manage faculties — the top level of the academic hierarchy</p>
+                </div>
+                <ExportCSVButton 
+                    data={faculties.map(f => ({
+                        name: f.name,
+                        code: f.code,
+                        departments: f._count?.departments || 0
+                    }))}
+                    headers={[
+                        { key: 'name', label: 'Name' },
+                        { key: 'code', label: 'Code' },
+                        { key: 'departments', label: 'Departments Count' }
+                    ]}
+                    filename="faculties"
+                />
             </div>
 
             {/* Create Form */}
