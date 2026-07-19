@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { requireAdmin } from "@/lib/auth/session"
 
 export async function getFaculties() {
     return await prisma.faculty.findMany({
@@ -15,6 +16,7 @@ export async function getFaculties() {
 }
 
 export async function createFaculty(data: { name: string, code: string }) {
+    await requireAdmin();
     const faculty = await prisma.faculty.create({ data })
     revalidatePath('/admin/faculties')
     revalidatePath('/admin/departments')
@@ -24,6 +26,7 @@ export async function createFaculty(data: { name: string, code: string }) {
 }
 
 export async function updateFaculty(id: string, data: { name?: string, code?: string }) {
+    await requireAdmin();
     const faculty = await prisma.faculty.update({
         where: { id },
         data
@@ -35,6 +38,7 @@ export async function updateFaculty(id: string, data: { name?: string, code?: st
 }
 
 export async function deleteFaculty(id: string) {
+    await requireAdmin();
     try {
         // Check if faculty has departments
         const deptCount = await prisma.department.count({ where: { facultyId: id } })

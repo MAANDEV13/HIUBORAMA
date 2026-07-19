@@ -10,6 +10,7 @@ export default function BatchesPage() {
     const [hierarchy, setHierarchy] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [newBatch, setNewBatch] = useState({ name: '', startYear: new Date().getFullYear() })
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // Collapse state keyed by id
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
@@ -56,8 +57,10 @@ export default function BatchesPage() {
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
         if (!newBatch.name) return
+        setIsSubmitting(true)
         await createBatch(newBatch)
         setNewBatch({ name: '', startYear: new Date().getFullYear() })
+        setIsSubmitting(false)
         load()
     }
 
@@ -126,8 +129,8 @@ export default function BatchesPage() {
                             required
                         />
                     </div>
-                    <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium">
-                        Create Batch
+                    <button type="submit" disabled={isSubmitting} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50">
+                        {isSubmitting ? 'Creating...' : 'Create Batch'}
                     </button>
                 </form>
             </div>

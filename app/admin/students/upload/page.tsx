@@ -39,7 +39,7 @@ export default function UploadStudentsPage() {
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Upload Students CSV</h1>
                     <p className="mt-2 text-gray-600 dark:text-gray-300">
-                        Upload a CSV file with columns: <code>studentId</code>, <code>name</code>, <code>program</code>, <code>batch</code>
+                        Upload a CSV file with columns: <code>studentId</code>, <code>name</code>, <code>batch</code>
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         The <code>batch</code> value links the student to the academic hierarchy (e.g. SH-2023). Class assignments are done per-semester on the Assign Classes page.<br/>
@@ -100,9 +100,9 @@ export default function UploadStudentsPage() {
                 <div className="mt-8">
                     <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Example CSV Format:</h3>
                     <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700 font-mono text-xs text-gray-600 dark:text-gray-400 overflow-x-auto">
-                        studentId,name,program,batch<br />
-                        2024004,Sarah Johnson,Bachelor,2024<br />
-                        2024005,Michael Brown,Diploma,2024
+                        studentId,name,batch<br />
+                        2024004,Sarah Johnson,2024<br />
+                        2024005,Michael Brown,2024
                     </div>
                 </div>
             </div>

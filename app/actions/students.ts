@@ -4,8 +4,10 @@ import { parse } from 'csv-parse/sync';
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth/session';
 
 export async function uploadStudents(formData: FormData) {
+    await requireAdmin();
     const file = formData.get('file') as File;
 
     if (!file) {
@@ -76,7 +78,50 @@ export async function uploadStudents(formData: FormData) {
     }
 }
 
+export async function createStudent(data: {
+    studentId: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    batchId?: string;
+    batch?: string;
+}) {
+    await requireAdmin();
+    try {
+        // Find matching batch
+        const batchObj = await prisma.batch.findUnique({
+            where: { name: data.batch || "" }
+        });
+        
+        const hashedPassword = await bcrypt.hash(data.studentId, 10);
+        const user = await prisma.user.create({
+            data: {
+                username: data.studentId,
+                password: hashedPassword,
+                role: 'STUDENT',
+                name: data.name
+            }
+        });
+
+        await prisma.student.create({
+            data: {
+                studentId: data.studentId,
+                userId: user.id,
+                batch: data.batch,
+                batchId: batchObj?.id
+            }
+        });
+
+        revalidatePath('/admin/students');
+        return { success: true };
+    } catch (error) {
+        console.error('Create Student Error:', error);
+        return { error: 'Failed to create student' };
+    }
+}
+
 export async function updateStudent(id: string, data: { name: string; program: string; batch: string }) {
+    await requireAdmin();
     try {
         // Find matching batch
         const batchObj = await prisma.batch.findUnique({
@@ -109,6 +154,7 @@ export async function updateStudent(id: string, data: { name: string; program: s
 }
 
 export async function deleteStudent(id: string) {
+    await requireAdmin();
     try {
         const student = await prisma.student.findUnique({
             where: { id },

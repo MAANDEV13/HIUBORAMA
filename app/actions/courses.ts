@@ -4,8 +4,10 @@ import { parse } from 'csv-parse/sync';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requireAdmin } from '@/lib/auth/session';
 
 export async function uploadCourses(formData: FormData) {
+    await requireAdmin();
     const file = formData.get('file') as File;
 
     if (!file) {

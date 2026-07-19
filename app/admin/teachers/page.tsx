@@ -8,6 +8,7 @@ export default function TeachersPage() {
     const [teachers, setTeachers] = useState<any[]>([])
     const [newTeacher, setNewTeacher] = useState({ name: '', phone: '', email: '' })
     const [loading, setLoading] = useState(true)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => {
         loadTeachers()
@@ -22,8 +23,10 @@ export default function TeachersPage() {
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
         if (!newTeacher.name) return
+        setIsSubmitting(true)
         await createTeacher(newTeacher)
         setNewTeacher({ name: '', phone: '', email: '' })
+        setIsSubmitting(false)
         loadTeachers()
     }
 
@@ -80,8 +83,8 @@ export default function TeachersPage() {
                             className="border p-2 rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
                     </div>
-                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        Add Teacher
+                    <button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50">
+                        {isSubmitting ? 'Adding...' : 'Add Teacher'}
                     </button>
                 </form>
             </div>

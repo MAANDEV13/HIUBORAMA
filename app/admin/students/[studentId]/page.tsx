@@ -20,6 +20,21 @@ export default async function AdminStudentView({ params }: Props) {
                 },
                 orderBy: { semester: { startDate: 'asc' } },
             },
+            studentClasses: {
+                include: {
+                    class: {
+                        include: {
+                            department: {
+                                include: {
+                                    faculty: true
+                                }
+                            }
+                        }
+                    }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 1
+            }
         },
     });
 
@@ -42,6 +57,8 @@ export default async function AdminStudentView({ params }: Props) {
         acc[semesterName].push(enrollment);
         return acc;
     }, {});
+
+    const currentClass = student.studentClasses?.[0]?.class;
 
     return (
         <div className="space-y-6">
@@ -91,6 +108,21 @@ export default async function AdminStudentView({ params }: Props) {
                         <div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Cumulative GPA</p>
                             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{cgpa}</p>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 md:grid-cols-3 gap-8">
+                        <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Faculty</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{currentClass?.department?.faculty?.name || 'Unassigned'}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Department</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{currentClass?.department?.name || 'Unassigned'}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-semibold">Current Class</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{currentClass?.name || 'Unassigned'}</p>
                         </div>
                     </div>
                 </div>

@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { requireAdmin } from "@/lib/auth/session"
 
 // --- Semester Planning ---
 
@@ -21,6 +22,7 @@ export async function getBatchSemesters(semesterId: string) {
 }
 
 export async function assignBatchToSemester(batchId: string, semesterId: string, academicSemester: number) {
+    await requireAdmin();
     const batchSemester = await prisma.batchSemester.create({
         data: {
             batchId,
@@ -35,6 +37,7 @@ export async function assignBatchToSemester(batchId: string, semesterId: string,
 // --- Course Scheduling ---
 
 export async function assignCourseToBatchSemester(batchSemesterId: string, courseId: string, teacherId?: string) {
+    await requireAdmin();
     const assignment = await prisma.courseAssignment.create({
         data: {
             batchSemesterId,
@@ -47,6 +50,7 @@ export async function assignCourseToBatchSemester(batchSemesterId: string, cours
 }
 
 export async function updateCourseAssignment(assignmentId: string, teacherId: string) {
+    await requireAdmin();
     const assignment = await prisma.courseAssignment.update({
         where: { id: assignmentId },
         data: { teacherId }
@@ -56,6 +60,7 @@ export async function updateCourseAssignment(assignmentId: string, teacherId: st
 }
 
 export async function removeCourseAssignment(assignmentId: string) {
+    await requireAdmin();
     await prisma.courseAssignment.delete({
         where: { id: assignmentId }
     })
@@ -65,6 +70,7 @@ export async function removeCourseAssignment(assignmentId: string) {
 // --- Bulk Registration ---
 
 export async function registerBatchCourses(batchSemesterId: string) {
+    await requireAdmin();
     // 1. Get the BatchSemester with all assignments
     const batchSemester = await prisma.batchSemester.findUnique({
         where: { id: batchSemesterId },
@@ -120,6 +126,7 @@ export async function registerBatchCourses(batchSemesterId: string) {
 // --- Batch Semester Removal ---
 
 export async function removeBatchSemester(batchSemesterId: string) {
+    await requireAdmin();
     // 1. Get the batch semester with students and course assignments
     const batchSemester = await prisma.batchSemester.findUnique({
         where: { id: batchSemesterId },

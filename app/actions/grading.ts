@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/session'
 
 // GradingScale Actions
 export async function getGradingScales() {
@@ -13,6 +14,7 @@ export async function getGradingScales() {
 }
 
 export async function createGradingScale(data: { grade: string; minMark: number; gpaPoint: number }) {
+    await requireAdmin();
     try {
         const result = await prisma.gradingScale.create({
             data
@@ -26,6 +28,7 @@ export async function createGradingScale(data: { grade: string; minMark: number;
 }
 
 export async function updateGradingScale(id: string, data: { grade: string; minMark: number; gpaPoint: number }) {
+    await requireAdmin();
     try {
         const result = await prisma.gradingScale.update({
             where: { id },
@@ -40,6 +43,7 @@ export async function updateGradingScale(id: string, data: { grade: string; minM
 }
 
 export async function deleteGradingScale(id: string) {
+    await requireAdmin();
     try {
         await prisma.gradingScale.delete({
             where: { id }

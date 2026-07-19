@@ -12,6 +12,7 @@ export default function FacultiesPage() {
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editName, setEditName] = useState('')
     const [editCode, setEditCode] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => { load() }, [])
 
@@ -24,9 +25,11 @@ export default function FacultiesPage() {
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
         if (!newName.trim() || !newCode.trim()) return
+        setIsSubmitting(true)
         await createFaculty({ name: newName.trim(), code: newCode.trim().toUpperCase() })
         setNewName('')
         setNewCode('')
+        setIsSubmitting(false)
         load()
     }
 
@@ -96,8 +99,8 @@ export default function FacultiesPage() {
                             maxLength={10}
                         />
                     </div>
-                    <button type="submit" className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm">
-                        Create Faculty
+                    <button type="submit" disabled={isSubmitting} className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm disabled:opacity-50">
+                        {isSubmitting ? 'Creating...' : 'Create Faculty'}
                     </button>
                 </form>
             </div>

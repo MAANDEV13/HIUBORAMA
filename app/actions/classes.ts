@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { requireAdmin } from "@/lib/auth/session"
 
 export async function getClasses() {
     return await prisma.class.findMany({
@@ -38,6 +39,7 @@ export async function getClassesByBatchSemester(batchSemesterId: string) {
 }
 
 export async function createClass(data: { name: string, departmentId: string, batchSemesterId: string }) {
+    await requireAdmin();
     const cls = await prisma.class.create({ data })
     revalidatePath('/admin/classes')
     revalidatePath('/admin/batches')
@@ -45,6 +47,7 @@ export async function createClass(data: { name: string, departmentId: string, ba
 }
 
 export async function updateClass(id: string, data: { name?: string }) {
+    await requireAdmin();
     const cls = await prisma.class.update({
         where: { id },
         data
@@ -54,6 +57,7 @@ export async function updateClass(id: string, data: { name?: string }) {
 }
 
 export async function deleteClass(id: string) {
+    await requireAdmin();
     try {
         const scCount = await prisma.studentClass.count({ where: { classId: id } })
         if (scCount > 0) {
@@ -105,6 +109,7 @@ export async function getStudentsForBatchSemester(batchSemesterId: string) {
 }
 
 export async function assignStudentsToClass(classId: string, studentIds: string[]) {
+    await requireAdmin();
     let created = 0
     let skipped = 0
 

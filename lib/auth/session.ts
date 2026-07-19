@@ -1,9 +1,19 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const secret = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'your-secret-key-change-in-production'
-);
+if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in the environment variables');
+}
+
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
+export async function requireAdmin() {
+    const session = await getSession();
+    if (!session || session.role !== 'ADMIN') {
+        throw new Error('Unauthorized: Admin access required');
+    }
+    return session;
+}
 
 export interface SessionPayload {
     userId: string;

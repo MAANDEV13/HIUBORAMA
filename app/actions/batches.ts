@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { requireAdmin } from "@/lib/auth/session"
 
 export async function getBatches() {
     return await prisma.batch.findMany({
@@ -15,6 +16,7 @@ export async function getBatches() {
 }
 
 export async function createBatch(data: { name: string, startYear: number }) {
+    await requireAdmin();
     const batch = await prisma.batch.create({
         data
     })
@@ -32,6 +34,7 @@ export async function assignStudentToBatch(studentId: string, batchId: string) {
 }
 
 export async function deleteBatch(id: string) {
+    await requireAdmin();
     try {
         await prisma.batch.delete({
             where: { id }

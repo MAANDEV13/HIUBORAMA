@@ -49,7 +49,11 @@ export async function login(formData: FormData) {
         redirectPath = user.role === 'ADMIN' ? '/admin' : '/student';
 
     } catch (error: any) {
-        console.error('Login error:', error);
+        console.error('=== LOGIN ERROR ===');
+        console.error(error);
+        if (error.code) console.error('Error Code:', error.code);
+        if (error.message) console.error('Error Message:', error.message);
+        console.error('===================');
         return { error: `An error occurred during login: ${error.message || String(error)}` };
     }
 

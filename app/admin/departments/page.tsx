@@ -15,6 +15,7 @@ export default function DepartmentsPage() {
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editName, setEditName] = useState('')
     const [editCode, setEditCode] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     useEffect(() => { load() }, [])
 
@@ -28,6 +29,7 @@ export default function DepartmentsPage() {
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
         if (!newName.trim() || !newCode.trim() || !newFacultyId) return
+        setIsSubmitting(true)
         await createDepartment({
             name: newName.trim(),
             code: newCode.trim().toUpperCase(),
@@ -36,6 +38,7 @@ export default function DepartmentsPage() {
         setNewName('')
         setNewCode('')
         setNewFacultyId('')
+        setIsSubmitting(false)
         load()
     }
 
@@ -134,8 +137,8 @@ export default function DepartmentsPage() {
                             maxLength={10}
                         />
                     </div>
-                    <button type="submit" className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm">
-                        Create Department
+                    <button type="submit" disabled={isSubmitting} className="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm disabled:opacity-50">
+                        {isSubmitting ? 'Creating...' : 'Create Department'}
                     </button>
                 </form>
             </div>

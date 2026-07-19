@@ -19,19 +19,39 @@ export function Sidebar({ userName, role }: SidebarProps) {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
 
-    const adminLinks = [
-        { href: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-        { href: '/admin/faculties', label: 'Faculties', icon: <Building2 size={20} /> },
-        { href: '/admin/departments', label: 'Departments', icon: <Building size={20} /> },
-        { href: '/admin/batches', label: 'Batches', icon: <CalendarDays size={20} /> },
-        { href: '/admin/classes', label: 'Classes', icon: <School size={20} /> },
-        { href: '/admin/students', label: 'Students', icon: <Users size={20} /> },
-        { href: '/admin/teachers', label: 'Teachers', icon: <GraduationCap size={20} /> },
-        { href: '/admin/courses', label: 'Courses', icon: <BookOpen size={20} /> },
-        { href: '/admin/grades', label: 'Grades', icon: <FileText size={20} /> },
-        { href: '/admin/scheduling', label: 'Scheduling', icon: <Calendar size={20} /> },
-        { href: '/admin/settings', label: 'Settings', icon: <Settings size={20} /> },
-        { href: '/admin/reset-password', label: 'Reset Pwd', icon: <Lock size={20} /> },
+    const adminSections = [
+        {
+            title: 'Overview',
+            items: [
+                { href: '/admin', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
+            ]
+        },
+        {
+            title: 'Hierarchy & Structure',
+            items: [
+                { href: '/admin/faculties', label: 'Faculties', icon: <Building2 size={20} /> },
+                { href: '/admin/departments', label: 'Departments', icon: <Building size={20} /> },
+                { href: '/admin/batches', label: 'Batches', icon: <CalendarDays size={20} /> },
+                { href: '/admin/scheduling', label: 'Scheduling', icon: <Calendar size={20} /> },
+                { href: '/admin/classes', label: 'Classes', icon: <School size={20} /> },
+            ]
+        },
+        {
+            title: 'Academics & People',
+            items: [
+                { href: '/admin/courses', label: 'Courses', icon: <BookOpen size={20} /> },
+                { href: '/admin/teachers', label: 'Teachers', icon: <GraduationCap size={20} /> },
+                { href: '/admin/students', label: 'Students', icon: <Users size={20} /> },
+                { href: '/admin/grades', label: 'Grades', icon: <FileText size={20} /> },
+            ]
+        },
+        {
+            title: 'System',
+            items: [
+                { href: '/admin/settings', label: 'Settings', icon: <Settings size={20} /> },
+                { href: '/admin/reset-password', label: 'Reset Pwd', icon: <Lock size={20} /> },
+            ]
+        }
     ];
 
     const studentLinks = [
@@ -40,7 +60,7 @@ export function Sidebar({ userName, role }: SidebarProps) {
         { href: '/student/settings', label: 'Settings', icon: <Settings size={20} /> },
     ];
 
-    const links = role === 'ADMIN' ? adminLinks : studentLinks;
+    const isStudent = role === 'STUDENT';
 
     return (
         <>
@@ -71,21 +91,48 @@ export function Sidebar({ userName, role }: SidebarProps) {
                     {/* Navigation Links */}
                     <nav className="flex-1 overflow-y-auto py-4">
                         <ul className="space-y-1 px-3">
-                            {links.map((link) => (
-                                <li key={link.href}>
-                                    <Link
-                                        href={link.href}
-                                        onClick={() => setIsOpen(false)}
-                                        className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${pathname === link.href
-                                            ? 'bg-blue-600 text-white'
-                                            : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                                            }`}
-                                    >
-                                        <span className="mr-3">{link.icon}</span>
-                                        {link.label}
-                                    </Link>
-                                </li>
-                            ))}
+                            {isStudent ? (
+                                studentLinks.map((link) => (
+                                    <li key={link.href}>
+                                        <Link
+                                            href={link.href}
+                                            onClick={() => setIsOpen(false)}
+                                            className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${pathname === link.href
+                                                ? 'bg-blue-600 text-white shadow-md'
+                                                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                                                }`}
+                                        >
+                                            <span className="mr-3">{link.icon}</span>
+                                            {link.label}
+                                        </Link>
+                                    </li>
+                                ))
+                            ) : (
+                                adminSections.map((section, idx) => (
+                                    <div key={idx} className="mb-4">
+                                        {section.title !== 'Overview' && (
+                                            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                {section.title}
+                                            </div>
+                                        )}
+                                        {section.items.map((link) => (
+                                            <li key={link.href} className="mt-1">
+                                                <Link
+                                                    href={link.href}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${pathname === link.href
+                                                        ? 'bg-blue-600 text-white shadow-md'
+                                                        : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                                                        }`}
+                                                >
+                                                    <span className="mr-3">{link.icon}</span>
+                                                    {link.label}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </div>
+                                ))
+                            )}
                         </ul>
                     </nav>
 

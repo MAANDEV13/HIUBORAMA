@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { requireAdmin } from "@/lib/auth/session"
 
 export async function getSemesters() {
     return await prisma.semester.findMany({
@@ -10,6 +11,7 @@ export async function getSemesters() {
 }
 
 export async function createSemester(data: { name: string, startDate: Date, endDate: Date }) {
+    await requireAdmin();
     const semester = await prisma.semester.create({
         data
     })
@@ -18,6 +20,7 @@ export async function createSemester(data: { name: string, startDate: Date, endD
 }
 
 export async function updateSemester(id: string, data: { name: string }) {
+    await requireAdmin();
     const semester = await prisma.semester.update({
         where: { id },
         data

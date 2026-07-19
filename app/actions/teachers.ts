@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { requireAdmin } from "@/lib/auth/session"
 
 export async function getTeachers() {
     return await prisma.teacher.findMany({
@@ -10,6 +11,7 @@ export async function getTeachers() {
 }
 
 export async function createTeacher(data: { name: string, phone?: string, email?: string }) {
+    await requireAdmin();
     const teacher = await prisma.teacher.create({
         data
     })
@@ -18,6 +20,7 @@ export async function createTeacher(data: { name: string, phone?: string, email?
 }
 
 export async function updateTeacher(id: string, data: { name?: string, phone?: string, email?: string }) {
+    await requireAdmin();
     const teacher = await prisma.teacher.update({
         where: { id },
         data
@@ -27,6 +30,7 @@ export async function updateTeacher(id: string, data: { name?: string, phone?: s
 }
 
 export async function deleteTeacher(id: string) {
+    await requireAdmin();
     await prisma.teacher.delete({
         where: { id }
     })

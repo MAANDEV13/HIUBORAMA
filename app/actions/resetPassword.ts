@@ -3,8 +3,10 @@
 import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth/session';
 
 export async function resetStudentPassword(formData: FormData) {
+    await requireAdmin();
     const studentId = formData.get('studentId') as string;
     const newPassword = formData.get('newPassword') as string;
 
@@ -39,6 +41,7 @@ export async function resetStudentPassword(formData: FormData) {
 }
 
 export async function searchStudents(query: string) {
+    await requireAdmin();
     if (!query || query.length < 2) return [];
 
     try {

@@ -22,6 +22,7 @@ export default function ClassesPage() {
     const [selectedDeptId, setSelectedDeptId] = useState('')
     const [selectedSemesterId, setSelectedSemesterId] = useState('')
     const [selectedBatchSemId, setSelectedBatchSemId] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // Filter state
     const [filterSemesterId, setFilterSemesterId] = useState('')
@@ -59,6 +60,7 @@ export default function ClassesPage() {
     async function handleCreate(e: React.FormEvent) {
         e.preventDefault()
         if (!newName.trim() || !selectedDeptId || !selectedBatchSemId) return
+        setIsSubmitting(true)
         try {
             await createClass({
                 name: newName.trim(),
@@ -69,6 +71,8 @@ export default function ClassesPage() {
             load()
         } catch (err: any) {
             alert('Error creating class. It may already exist for this semester/department.')
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -176,8 +180,8 @@ export default function ClassesPage() {
                                     className="flex-1 border p-2 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                                     required
                                 />
-                                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm whitespace-nowrap">
-                                    Create
+                                <button type="submit" disabled={isSubmitting} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm whitespace-nowrap disabled:opacity-50">
+                                    {isSubmitting ? 'Creating...' : 'Create'}
                                 </button>
                             </div>
                         </div>

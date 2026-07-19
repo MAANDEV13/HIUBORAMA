@@ -3,6 +3,7 @@
 import { parse } from 'csv-parse/sync';
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth/session';
 
 // Helper function to calculate grade and GPA dynamically
 type GradingScaleType = { grade: string; minMark: number; gpaPoint: number };
@@ -30,6 +31,7 @@ function calculateGrade(total: number, scales: GradingScaleType[]): { grade: str
 }
 
 export async function uploadGrades(formData: FormData) {
+    await requireAdmin();
     const file = formData.get('file') as File;
     const semesterId = formData.get('semesterId') as string;
 
@@ -133,6 +135,7 @@ export async function updateGrade(enrollmentId: string, data: {
     midExam: number;
     finalExam: number;
 }) {
+    await requireAdmin();
     try {
         const { attendance, assessment, midExam, finalExam } = data;
         const total = attendance + assessment + midExam + finalExam;
@@ -167,6 +170,7 @@ export async function bulkUnenrollByBatch(
     courseId: string,
     semesterId: string
 ) {
+    await requireAdmin();
     try {
         // Get all students in the batch
         const students = await prisma.student.findMany({
